@@ -1,7 +1,7 @@
 PluginsJamomaUnity
 ==================
 
-You can download, on this page, necessary elements to create and use the plugins Jamoma-Unity in video games built by Unity3D.
+You can download, on this page, necessary elements to create and use the plugins Jamoma-Unity in video games built by Unity.
 
 There are two dossiers:
 
