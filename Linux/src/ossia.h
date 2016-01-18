@@ -10,18 +10,17 @@ struct ossia_protocol;
 struct ossia_device;
 struct ossia_node;
 struct ossia_address;
-struct ossia_value;
 struct ossia_domain;
 
 typedef ossia_protocol* ossia_protocol_t;
 typedef ossia_device* ossia_device_t;
 typedef ossia_node* ossia_node_t;
 typedef ossia_address* ossia_address_t;
-typedef ossia_value* ossia_value_t;
+typedef void* ossia_value_t;
 typedef ossia_domain* ossia_domain_t;
 
 
-typedef void (*ossia_value_callback_t)(int);
+typedef void (*ossia_value_callback_t)(ossia_value_t);
 struct ossia_value_callback_index;
 typedef ossia_value_callback_index* ossia_value_callback_index_t;
 
@@ -81,7 +80,7 @@ ossia_node_t ossia_device_add_child(
         const char * name);
 void ossia_device_remove_child(
         ossia_device_t device,
-        const char * name);
+        ossia_node_t node);
 
 //// Node ////
 ossia_node_t ossia_node_add_child(
@@ -89,7 +88,7 @@ ossia_node_t ossia_node_add_child(
         const char * name);
 void ossia_node_remove_child(
         ossia_node_t node,
-        const char * name);
+        ossia_node_t name);
 
 ossia_address_t ossia_node_create_address(
         ossia_node_t node,
@@ -152,6 +151,8 @@ void ossia_domain_set_max(
         ossia_domain_t domain,
         ossia_value_t value);
 
+void ossia_domain_free(
+        ossia_domain_t address);
 
 //// Value ////
 ossia_value_t ossia_value_create_impulse();
@@ -162,12 +163,15 @@ ossia_value_t ossia_value_create_char(char value);
 ossia_value_t ossia_value_create_string(const char* value);
 ossia_value_t ossia_value_create_tuple(ossia_value_t* values, int size);
 
+void ossia_value_free(ossia_value_t value);
+
 ossia_type ossia_value_get_type(ossia_value_t type);
 int ossia_value_to_int(ossia_value_t val);
 float ossia_value_to_float(ossia_value_t val);
 bool ossia_value_to_bool(ossia_value_t val);
 char ossia_value_to_char(ossia_value_t val);
 const char* ossia_value_to_string(ossia_value_t val);
+void ossia_value_free_string(const char * str);
 void ossia_value_to_tuple(ossia_value_t val_in, ossia_value_t* out, int* size);
 
 
