@@ -11,6 +11,10 @@ add_library(PluginOssiaUnity SHARED
 	src/PluginJamomaUnity.h
 )
 
-set_property(TARGET PluginOssiaUnity PROPERTY CXX_STANDARD 14)
+set_target_properties(PluginOssiaUnity PROPERTIES
+    CXX_STANDARD 14
+    C_VISIBILITY_PRESET default
+    CXX_VISIBILITY_PRESET default
+)
 
 target_link_libraries(PluginOssiaUnity Jamoma::Foundation Jamoma::Modular Jamoma::Score)
