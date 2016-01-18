@@ -230,7 +230,8 @@ void ossia_address_set_bounding_mode(
     address->address->setBoundingMode(convert(am));
 }
 
-ossia_bounding_mode ossia_address_get_bounding_mode(ossia_address_t address)
+ossia_bounding_mode ossia_address_get_bounding_mode(
+        ossia_address_t address)
 {
     if(!address)
         return ossia_bounding_mode{};
@@ -238,3 +239,170 @@ ossia_bounding_mode ossia_address_get_bounding_mode(ossia_address_t address)
     return convert(address->address->getBoundingMode());
 }
 
+
+void ossia_address_set_domain(
+        ossia_address_t address,
+        ossia_domain_t domain)
+{
+    if(!address)
+        return;
+
+}
+
+ossia_domain_t ossia_address_get_domain(
+        ossia_address_t address)
+{
+
+}
+
+void ossia_address_set_value(
+        ossia_address_t address,
+        ossia_value_t value)
+{
+
+}
+
+ossia_value_t ossia_address_get_value(
+        ossia_address_t address)
+{
+
+}
+
+void ossia_address_push_value(
+        ossia_address_t address,
+        ossia_value_t value)
+{
+
+}
+
+ossia_value_t ossia_address_pull_value(
+        ossia_address_t address)
+{
+
+}
+
+ossia_value_callback_index_t ossia_address_add_callback(
+        ossia_address_t address,
+        ossia_value_callback_t callback)
+{
+
+}
+
+void ossia_address_remove_callback(
+        ossia_address_t address,
+        ossia_value_callback_index_t index)
+{
+
+}
+
+ossia_value_t ossia_domain_get_min(
+        ossia_domain_t domain)
+{
+
+}
+
+void ossia_domain_set_min(
+        ossia_domain_t domain,
+        ossia_value_t value)
+{
+
+}
+
+ossia_value_t ossia_domain_get_max(
+        ossia_domain_t domain)
+{
+
+}
+
+void ossia_domain_set_max(
+        ossia_domain_t domain,
+        ossia_value_t value)
+{
+
+}
+
+ossia_value_t ossia_value_create_impulse()
+{
+
+}
+
+ossia_value_t ossia_value_create_int(
+        int value)
+{
+
+}
+
+ossia_value_t ossia_value_create_float(
+        float value)
+{
+
+}
+
+ossia_value_t ossia_value_create_bool(
+        bool value)
+{
+
+}
+
+ossia_value_t ossia_value_create_char(
+        char value)
+{
+
+}
+
+ossia_value_t ossia_value_create_string(
+        const char* value)
+{
+
+}
+
+ossia_value_t ossia_value_create_tuple(
+        ossia_value_t* values,
+        int size)
+{
+
+}
+
+ossia_type ossia_value_get_type(
+        ossia_value_t type)
+{
+
+}
+
+int ossia_value_to_int(
+        ossia_value_t val)
+{
+
+}
+
+float ossia_value_to_float(
+        ossia_value_t val)
+{
+
+}
+
+bool ossia_value_to_bool(
+        ossia_value_t val)
+{
+
+}
+
+char ossia_value_to_char(
+        ossia_value_t val)
+{
+
+}
+
+const char*ossia_value_to_string(
+        ossia_value_t val)
+{
+
+}
+
+void ossia_value_to_tuple(
+        ossia_value_t val_in,
+        ossia_value_t* out,
+        int* size)
+{
+
+}

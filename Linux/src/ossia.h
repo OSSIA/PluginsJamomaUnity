@@ -117,19 +117,18 @@ void ossia_address_set_domain(
 ossia_domain_t ossia_address_get_domain(
         ossia_address_t address);
 
-ossia_value_t ossia_address_get_value(
-        ossia_address_t address);
-
 void ossia_address_set_value(
         ossia_address_t address,
         ossia_value_t value);
-
-ossia_value_t ossia_address_pull_value(
+ossia_value_t ossia_address_get_value(
         ossia_address_t address);
+
 
 void ossia_address_push_value(
         ossia_address_t address,
         ossia_value_t value);
+ossia_value_t ossia_address_pull_value(
+        ossia_address_t address);
 
 ossia_value_callback_index_t ossia_address_add_callback(
         ossia_address_t address,
@@ -137,6 +136,21 @@ ossia_value_callback_index_t ossia_address_add_callback(
 void ossia_address_remove_callback(
         ossia_address_t address,
         ossia_value_callback_index_t index);
+
+
+
+//// Domain ////
+ossia_value_t ossia_domain_get_min(
+        ossia_domain_t domain);
+void ossia_domain_set_min(
+        ossia_domain_t domain,
+        ossia_value_t value);
+
+ossia_value_t ossia_domain_get_max(
+        ossia_domain_t domain);
+void ossia_domain_set_max(
+        ossia_domain_t domain,
+        ossia_value_t value);
 
 
 //// Value ////
