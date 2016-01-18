@@ -25,11 +25,17 @@
 #include "TTModular.h"
 #include "TTScore.h"
 #include <vector>
+#ifdef __WIN32
+#define STDCALL __stdcall
+#else
+#define STDCALL
+#endif
+
 
 extern "C"
 {
     ///< Callback function (used in Unity) which allows informing the mocification of value of a data
-    typedef void (__stdcall * ValueCallback)();
+    typedef void (STDCALL * ValueCallback)();
     
     // Declare the application manager, the local application and the distant application
     TTObject mApplicationManager;   ///< The application manager of the Jamoma Modular framework
