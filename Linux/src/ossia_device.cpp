@@ -74,4 +74,25 @@ void ossia_device_remove_child(
     delete child;
 }
 
+int ossia_device_child_size(
+        ossia_device_t device)
+{
+    if(!device)
+        return {};
+
+    return device->device->children().size();
+}
+
+ossia_node_t ossia_device_get_child(
+        ossia_device_t device,
+        int child_n)
+{
+    if(!device)
+        return {};
+
+    if(device->device->children().size() < child_n)
+        return nullptr;
+
+    return new ossia_node{device->device->children()[child_n]};
+}
 }

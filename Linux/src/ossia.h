@@ -88,6 +88,12 @@ void ossia_device_remove_child(
         ossia_device_t device,
         ossia_node_t node);
 
+int ossia_device_child_size(
+        ossia_device_t node);
+ossia_node_t ossia_device_get_child(
+        ossia_device_t node,
+        int child_n);
+
 //// Node ////
 ossia_node_t ossia_node_add_child(
         ossia_node_t node,
@@ -191,7 +197,7 @@ void ossia_value_free_string(const char * str);
 void ossia_value_to_tuple(ossia_value_t val_in, ossia_value_t* out, int* size);
 
 
-typedef void (*ossia_log_fun_t)( const char * );
+typedef void (*ossia_log_fun_t)(const char *);
 void ossia_set_debug_logger(ossia_log_fun_t fp);
 void ossia_log_error(const char* error);
 
