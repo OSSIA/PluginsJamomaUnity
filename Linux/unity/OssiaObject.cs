@@ -24,7 +24,9 @@ namespace AssemblyCSharp
 
 		void RegisterObject(GameObject obj)
 		{
+			Debug.Log ("Registering child");
 			child_node = scene_node.AddChild(obj.name);
+			Debug.Log ("Registered child");
 			x_node = child_node.AddChild ("x");
 			y_node = child_node.AddChild ("y");
 			z_node = child_node.AddChild ("z");
@@ -38,9 +40,12 @@ namespace AssemblyCSharp
 		{
 			var obj = GameObject.Find ("OssiaController");
 			if (obj != null) {
+				Debug.Log ("Found controller");
 				var comp = obj.GetComponent<OssiaDevices> ();
 				if (comp != null) {
+					Debug.Log ("Found component");
 					scene_node = comp.SceneNode ();
+					RegisterObject (this.gameObject);
 				}
 			}
 		}
@@ -48,7 +53,9 @@ namespace AssemblyCSharp
 		public void Update()
 		{
 			var pos = this.gameObject.transform.position;
-
+			x_addr.PushValue (ValueFactory.createFloat (pos.x));
+			y_addr.PushValue (ValueFactory.createFloat (pos.y));
+			z_addr.PushValue (ValueFactory.createFloat (pos.z));
 		}
 	}
 }

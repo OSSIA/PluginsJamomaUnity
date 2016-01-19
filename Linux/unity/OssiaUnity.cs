@@ -306,13 +306,41 @@ namespace Ossia
 		}
 	}
 
+	public class ValueFactory
+	{
+		static public Value createString(string v)
+		{
+			return new Value(Network.ossia_value_create_string(v));
+		}
+		static public Value createInt(int v)
+		{
+			return new Value(Network.ossia_value_create_int(v));
+		}
+		static public Value createFloat(float v)
+		{
+			return new Value(Network.ossia_value_create_float(v));
+		}
+		static public Value createBool(bool v)
+		{
+			return new Value(Network.ossia_value_create_bool(v));
+		}
+		static public Value createChar(char v)
+		{
+			return new Value(Network.ossia_value_create_char(v));
+		}
+	}
 	public class Value
 	{
 		internal IntPtr ossia_value;
 
-		public Value(IntPtr v)
+		internal protected Value(IntPtr v)
 		{
 			ossia_value = v;
+		}
+
+		public void Free()
+		{
+			Network.ossia_value_free (ossia_value);
 		}
 	}
 

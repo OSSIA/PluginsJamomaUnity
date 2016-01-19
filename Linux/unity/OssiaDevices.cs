@@ -27,7 +27,7 @@ public class OssiaDevices : MonoBehaviour {
 		Debug.Log("OSSIA : " + str);
 	}
 
-	void Start ()
+	void Awake ()
 	{
 		if (!set) {
 			set = true;
