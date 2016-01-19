@@ -20,8 +20,6 @@ public class OssiaDevices : MonoBehaviour {
 
 
 	public delegate void debug_log_delegate(string str);
-
-
 	static void DebugLogCallback(string str)
 	{
 		Debug.Log("OSSIA : " + str);

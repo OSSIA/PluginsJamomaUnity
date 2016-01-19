@@ -7,9 +7,6 @@ ossia_device_t ossia_device_create(
         const char* name)
 try
 {
-    DEBUG_LOG_FMT("enter devicecreate");
-    DEBUG_LOG_FMT("device: %s", name);
-
     auto dev = new ossia_device{OSSIA::Device::create(protocol->protocol, name)};
 
     delete protocol;

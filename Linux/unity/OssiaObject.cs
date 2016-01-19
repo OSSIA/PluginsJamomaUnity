@@ -24,9 +24,7 @@ namespace AssemblyCSharp
 
 		void RegisterObject(GameObject obj)
 		{
-			Debug.Log ("Registering child");
 			child_node = scene_node.AddChild(obj.name);
-			Debug.Log ("Registered child");
 			x_node = child_node.AddChild ("x");
 			y_node = child_node.AddChild ("y");
 			z_node = child_node.AddChild ("z");
@@ -34,6 +32,8 @@ namespace AssemblyCSharp
 			x_addr = x_node.CreateAddress (Ossia.ossia_type.FLOAT);
 			y_addr = y_node.CreateAddress (Ossia.ossia_type.FLOAT);
 			z_addr = z_node.CreateAddress (Ossia.ossia_type.FLOAT);
+
+			x_addr.AddCallback (new ValueCallbackDelegate (XChangedCallback));
 		}
 
 		public void Start()
@@ -53,9 +53,19 @@ namespace AssemblyCSharp
 		public void Update()
 		{
 			var pos = this.gameObject.transform.position;
-			x_addr.PushValue (ValueFactory.createFloat (pos.x));
-			y_addr.PushValue (ValueFactory.createFloat (pos.y));
-			z_addr.PushValue (ValueFactory.createFloat (pos.z));
+			if (child_node == null)
+				return;
+			
+			//x_addr.PushValue (ValueFactory.createFloat (pos.x));
+			//y_addr.PushValue (ValueFactory.createFloat (pos.y));
+			//z_addr.PushValue (ValueFactory.createFloat (pos.z));
+		}
+
+
+		static void XChangedCallback(Ossia.Value val)
+		{
+			Debug.Log("OSSIA callback");
+			//this.gameObject.transform.position.Set (0, 0, 0);
 		}
 	}
 }

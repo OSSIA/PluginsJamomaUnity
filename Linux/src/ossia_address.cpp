@@ -115,7 +115,9 @@ ossia_value_callback_index_t ossia_address_add_callback(
         return nullptr;
 
     return new ossia_value_callback_index{
-        address->address->addCallback([=] (const OSSIA::Value* val) {
+        address->address->addCallback([=] (const OSSIA::Value* val)
+        {
+            DEBUG_LOG_FMT("inside added callback");
             callback(convert(val));
         })
     };

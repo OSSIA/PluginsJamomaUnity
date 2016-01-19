@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Runtime;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using System;
 
 namespace Ossia
@@ -34,8 +35,12 @@ namespace Ossia
 		FOLD
 	}
 
+	public delegate void ValueCallbackDelegate(Ossia.Value t);
+
 	internal class Network
 	{
+		public delegate void ossia_value_callback(IntPtr t);
+
 		[DllImport ("ossia")]
 		public static extern IntPtr ossia_protocol_local_create ();
 
@@ -384,8 +389,12 @@ namespace Ossia
 	public class Address
 	{
 		internal IntPtr ossia_address;
+		internal IntPtr ossia_callback_it;
+		List<ValueCallbackDelegate> callbacks; 
+
 		public Address(IntPtr address)
 		{
+			callbacks = new List<ValueCallbackDelegate> ();
 			ossia_address = address;
 		}
 
@@ -427,6 +436,37 @@ namespace Ossia
 		public Value PullValue()
 		{
 			return new Value (Network.ossia_address_pull_value (ossia_address));
+		}
+
+		public void AddCallback(ValueCallbackDelegate callback)
+		{
+			Debug.Log (callbacks.Count);
+			if (callbacks.Count == 0) {
+				// We initialize the callback structure.
+				var real_cb = new Network.ossia_value_callback ((IntPtr p) => CallbackWrapper(this, p));
+				IntPtr intptr_delegate = Marshal.GetFunctionPointerForDelegate (real_cb);
+				ossia_callback_it = Network.ossia_address_add_callback(ossia_address, intptr_delegate);
+			}
+			callbacks.Add (callback);
+		}
+
+		static public void CallbackWrapper(Address self, IntPtr value)
+		{
+			Debug.Log("OSSIA callback root");
+			Ossia.Value val = new Ossia.Value (value);
+			foreach(var cb in self.callbacks)
+			{
+				cb (val);				
+			}
+
+		}
+
+		public void RemoveCallback(ValueCallbackDelegate c)
+		{
+			callbacks.RemoveAll(x => x == c);
+			if (callbacks.Count == 0) {
+				Network.ossia_address_remove_callback (ossia_address, ossia_callback_it);
+			}
 		}
 
 		/* TODO
