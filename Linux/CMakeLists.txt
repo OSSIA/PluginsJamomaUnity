@@ -7,7 +7,13 @@ add_subdirectory(API)
 
 add_library(ossia
   src/ossia.h
-  src/ossia.cpp
+  src/ossia_utils.hpp
+  src/ossia_protocol.cpp
+  src/ossia_node.cpp
+  src/ossia_device.cpp
+  src/ossia_address.cpp
+  src/ossia_value.cpp
+  src/ossia_domain.cpp
 )
 set_property(TARGET ossia PROPERTY CXX_STANDARD 14)
 target_link_libraries(ossia APIJamoma)

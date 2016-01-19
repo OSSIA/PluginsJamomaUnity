@@ -53,6 +53,12 @@ enum ossia_bounding_mode
   FOLD
 };
 //// Protocol ////
+
+
+/**
+ * @brief ossia_protocol_local_create
+ * @return An instance of a Local protocol
+ */
 ossia_protocol_t ossia_protocol_local_create();
 
 ossia_protocol_t ossia_protocol_osc_create(
@@ -89,6 +95,15 @@ ossia_node_t ossia_node_add_child(
 void ossia_node_remove_child(
         ossia_node_t node,
         ossia_node_t name);
+
+void ossia_node_free(
+        ossia_node_t node);
+
+int ossia_node_child_size(
+        ossia_node_t node);
+ossia_node_t ossia_node_get_child(
+        ossia_node_t node,
+        int child_n);
 
 ossia_address_t ossia_node_create_address(
         ossia_node_t node,
