@@ -109,7 +109,8 @@ ossia_address_t ossia_node_create_address(
         ossia_node_t node,
         ossia_type type);
 void ossia_node_remove_address(
-        ossia_node_t node);
+        ossia_node_t node,
+        ossia_address_t address);
 
 
 //// Address ////
@@ -188,6 +189,11 @@ char ossia_value_to_char(ossia_value_t val);
 const char* ossia_value_to_string(ossia_value_t val);
 void ossia_value_free_string(const char * str);
 void ossia_value_to_tuple(ossia_value_t val_in, ossia_value_t* out, int* size);
+
+
+typedef void (*ossia_log_fun_t)( const char * );
+void ossia_set_debug_logger(ossia_log_fun_t fp);
+void ossia_log_error(const char* error);
 
 
 #if defined(__cplusplus)

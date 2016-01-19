@@ -12,6 +12,14 @@
 
 #include <algorithm>
 #include <cstring>
+#include <cstdio>
+
+#define DEBUG_LOG_FMT(fmt, ...)    \
+    do { \
+    static char buf[4096]; \
+    sprintf(buf, fmt, ##__VA_ARGS__); \
+    ossia_log_error(buf); \
+    } while (0)
 
 struct ossia_protocol
 {

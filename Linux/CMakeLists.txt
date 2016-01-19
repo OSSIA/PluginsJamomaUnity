@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.4)
 
 project(PluginJamomaUnity CXX)
 find_package(Jamoma COMPONENTS Foundation Modular Score)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/jcelerier/travail/test-jamoma-unity)
+set(BUILD_SHARED_LIBS On)
 
 add_subdirectory(API)
 
-add_library(ossia
+add_library(ossia SHARED
   src/ossia.h
   src/ossia_utils.hpp
   src/ossia_protocol.cpp
@@ -16,7 +18,7 @@ add_library(ossia
   src/ossia_domain.cpp
 )
 set_property(TARGET ossia PROPERTY CXX_STANDARD 14)
-target_link_libraries(ossia APIJamoma)
+target_link_libraries(ossia PRIVATE APIJamoma)
 
 
 add_library(PluginOssiaUnity SHARED

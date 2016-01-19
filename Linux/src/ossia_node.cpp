@@ -75,12 +75,14 @@ ossia_address_t ossia_node_create_address(
 }
 
 void ossia_node_remove_address(
-        ossia_node_t node)
+        ossia_node_t node,
+        ossia_address_t address)
 {
     if(!node)
         return;
 
     node->node->removeAddress();
+    delete address;
 }
 
 }

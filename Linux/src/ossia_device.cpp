@@ -1,15 +1,23 @@
 #include "ossia_utils.hpp"
-
+#include <iostream>
 extern "C"
 {
 ossia_device_t ossia_device_create(
         ossia_protocol_t protocol,
         const char* name)
+try
 {
+    DEBUG_LOG_FMT("enter devicecreate");
+    DEBUG_LOG_FMT("device: %s", name);
+
     auto dev = new ossia_device{OSSIA::Device::create(protocol->protocol, name)};
 
     delete protocol;
     return dev;
+}
+catch(...)
+{
+
 }
 
 void ossia_device_free(ossia_device_t device)
