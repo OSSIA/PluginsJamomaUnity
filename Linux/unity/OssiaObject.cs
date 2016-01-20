@@ -1,39 +1,191 @@
 ﻿using System;
+using System.Reflection;
 using UnityEngine;
-using UnityEditor;
 using Ossia;
 
 namespace AssemblyCSharp
 {
+
+	public class OssiaTransform
+	{
+		Ossia.Node pos_node;
+		Ossia.Node orient_node;
+
+		Ossia.Node pos_x_node;
+		Ossia.Node pos_y_node;
+		Ossia.Node pos_z_node;
+
+		Ossia.Address pos_x_addr;
+		Ossia.Address pos_y_addr;
+		Ossia.Address pos_z_addr;
+
+		Ossia.Node rot_w_node;
+		Ossia.Node rot_x_node;
+		Ossia.Node rot_y_node;
+		Ossia.Node rot_z_node;
+
+		Ossia.Address rot_w_addr;
+		Ossia.Address rot_x_addr;
+		Ossia.Address rot_y_addr;
+		Ossia.Address rot_z_addr;
+
+		public OssiaTransform(GameObject obj, Ossia.Node object_node)
+		{
+			{
+				pos_node = object_node.AddChild ("position");
+				pos_x_node = pos_node.AddChild ("x");
+				pos_y_node = pos_node.AddChild ("y");
+				pos_z_node = pos_node.AddChild ("z");
+
+				pos_x_addr = pos_x_node.CreateAddress (Ossia.ossia_type.FLOAT);
+				pos_y_addr = pos_y_node.CreateAddress (Ossia.ossia_type.FLOAT);
+				pos_z_addr = pos_z_node.CreateAddress (Ossia.ossia_type.FLOAT);
+
+				pos_x_addr.PushValue (ValueFactory.createFloat (obj.transform.position.x));
+				pos_y_addr.PushValue (ValueFactory.createFloat (obj.transform.position.y));
+				pos_z_addr.PushValue (ValueFactory.createFloat (obj.transform.position.z));
+			}
+
+			{
+				orient_node = object_node.AddChild ("rotation");
+				rot_w_node = orient_node.AddChild ("w");
+				rot_x_node = orient_node.AddChild ("x");
+				rot_y_node = orient_node.AddChild ("y");
+				rot_z_node = orient_node.AddChild ("z");
+
+				rot_w_addr = rot_w_node.CreateAddress (Ossia.ossia_type.FLOAT);
+				rot_x_addr = rot_x_node.CreateAddress (Ossia.ossia_type.FLOAT);
+				rot_y_addr = rot_y_node.CreateAddress (Ossia.ossia_type.FLOAT);
+				rot_z_addr = rot_z_node.CreateAddress (Ossia.ossia_type.FLOAT);
+
+				rot_w_addr.PushValue (ValueFactory.createFloat (obj.transform.rotation.w));
+				rot_x_addr.PushValue (ValueFactory.createFloat (obj.transform.position.x));
+				rot_y_addr.PushValue (ValueFactory.createFloat (obj.transform.position.y));
+				rot_z_addr.PushValue (ValueFactory.createFloat (obj.transform.position.z));
+			}
+		}
+
+
+		public void ReceiveUpdates(GameObject obj)
+		{
+			{
+				var pos = obj.transform.position;
+
+				var x_val = pos_x_addr.PullValue ();
+				if (x_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+					pos.x = x_val.GetFloat ();
+				} 
+
+				var y_val = pos_y_addr.PullValue ();
+				if (y_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+					pos.y = y_val.GetFloat ();
+				} 
+
+				var z_val = pos_z_addr.PullValue ();
+				if (z_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+					pos.z = z_val.GetFloat ();
+				}
+			}
+
+			{
+				var rot = obj.transform.rotation;
+				var w_val = rot_w_addr.PullValue ();
+				if (w_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+					rot.w = w_val.GetFloat ();
+				} 
+
+				var x_val = rot_x_addr.PullValue ();
+				if (x_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+					rot.x = x_val.GetFloat ();
+				} 
+
+				var y_val = rot_y_addr.PullValue ();
+				if (y_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+					rot.y = y_val.GetFloat ();
+				} 
+
+				var z_val = rot_z_addr.PullValue ();
+				if (z_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+					rot.z = z_val.GetFloat ();
+				}
+			}
+		}
+
+		public void SendUpdates(GameObject obj)
+		{
+			{
+				var pos = obj.transform.position;
+				using (var val = ValueFactory.createFloat (pos.x)) {
+					pos_x_addr.PushValue (val);
+				}
+				using (var val = ValueFactory.createFloat (pos.y)) {
+					pos_y_addr.PushValue (val);
+				}
+				using (var val = ValueFactory.createFloat (pos.z)) {
+					pos_z_addr.PushValue (val);
+				}
+			}
+
+			{
+				var rot = obj.transform.rotation;
+				using (var val = ValueFactory.createFloat (rot.w)) {
+					rot_w_addr.PushValue (val);
+				}
+				using (var val = ValueFactory.createFloat (rot.x)) {
+					rot_x_addr.PushValue (val);
+				}
+				using (var val = ValueFactory.createFloat (rot.y)) {
+					rot_y_addr.PushValue (val);
+				}
+				using (var val = ValueFactory.createFloat (rot.z)) {
+					rot_z_addr.PushValue (val);
+				}
+			}
+		}
+	}
+
 	public class OssiaObject : MonoBehaviour 
 	{
+		public bool ReceiveUpdates;
+		public bool SendUpdates;
+
+
 		Ossia.Node scene_node;
 		Ossia.Node child_node;
-		Ossia.Node x_node;
-		Ossia.Node y_node;
-		Ossia.Node z_node;
 
-		Ossia.Address x_addr;
-		Ossia.Address y_addr;
-		Ossia.Address z_addr;
+		OssiaTransform ossia_transform;
+
 
 		public OssiaObject ()
 		{
 		}
 
 
+		void RegisterComponent(MonoBehaviour component)
+		{
+			Debug.Log ("Registering component" + component.GetType().ToString());
+			const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly; 
+			FieldInfo[] fields = component.GetType().GetFields(flags);
+
+			foreach (FieldInfo field in fields) {
+				if(Attribute.IsDefined(field, typeof(Ossia.Expose))) {
+					var attr = (Ossia.Expose) Attribute.GetCustomAttribute(field, typeof(Ossia.Expose));
+					Debug.Log ("tutu" + field.Name + " " + attr.ExposedName  );
+				}
+			}
+		}
 		void RegisterObject(GameObject obj)
 		{
 			child_node = scene_node.AddChild(obj.name);
-			x_node = child_node.AddChild ("x");
-			y_node = child_node.AddChild ("y");
-			z_node = child_node.AddChild ("z");
+			ossia_transform = new OssiaTransform (obj, child_node);
 
-			x_addr = x_node.CreateAddress (Ossia.ossia_type.FLOAT);
-			y_addr = y_node.CreateAddress (Ossia.ossia_type.FLOAT);
-			z_addr = z_node.CreateAddress (Ossia.ossia_type.FLOAT);
-
-			x_addr.AddCallback (new ValueCallbackDelegate (XChangedCallback));
+			// For each component, we check the public fields.
+			// If these fields have the Ossia.Expose attribute, 
+			// then we create node structures for them.
+			MonoBehaviour[] comps = obj.GetComponents <MonoBehaviour>(); 
+			foreach (MonoBehaviour component in comps) {
+				
+			}
 		}
 
 		public void Start()
@@ -52,13 +204,13 @@ namespace AssemblyCSharp
 
 		public void Update()
 		{
-			var pos = this.gameObject.transform.position;
-			if (child_node == null)
-				return;
-			
-			//x_addr.PushValue (ValueFactory.createFloat (pos.x));
-			//y_addr.PushValue (ValueFactory.createFloat (pos.y));
-			//z_addr.PushValue (ValueFactory.createFloat (pos.z));
+			if (ReceiveUpdates) {
+				ossia_transform.ReceiveUpdates (this.gameObject);
+			}
+			if (SendUpdates) {
+				ossia_transform.SendUpdates (this.gameObject);
+			}
+
 		}
 
 

@@ -334,19 +334,65 @@ namespace Ossia
 			return new Value(Network.ossia_value_create_char(v));
 		}
 	}
-	public class Value
+	public class Value : IDisposable
 	{
 		internal IntPtr ossia_value;
+		bool disposed = false;
 
 		internal protected Value(IntPtr v)
 		{
 			ossia_value = v;
 		}
 
+		public void Dispose()
+		{ 
+			Dispose(true);
+			GC.SuppressFinalize(this);           
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed)
+				return; 
+
+			if (disposing) {
+				Free();
+			}
+
+			disposed = true;
+		}
+
 		public void Free()
 		{
 			Network.ossia_value_free (ossia_value);
 		}
+
+		public ossia_type GetOssiaType()
+		{
+			return Network.ossia_value_get_type(ossia_value);
+		}
+
+		public int GetInt()
+		{
+			return Network.ossia_value_to_int(ossia_value);
+		}
+		public bool GetBool()
+		{
+			return Network.ossia_value_to_bool(ossia_value);
+		}
+		public float GetFloat()
+		{
+			return Network.ossia_value_to_float(ossia_value);
+		}
+		public char GetChar()
+		{
+			return Network.ossia_value_to_char(ossia_value);
+		}
+		public string GetString()
+		{
+			return Network.ossia_value_to_string(ossia_value);
+		}
+
 	}
 
 
@@ -440,7 +486,6 @@ namespace Ossia
 
 		public void AddCallback(ValueCallbackDelegate callback)
 		{
-			Debug.Log (callbacks.Count);
 			if (callbacks.Count == 0) {
 				// We initialize the callback structure.
 				var real_cb = new Network.ossia_value_callback ((IntPtr p) => CallbackWrapper(this, p));
@@ -463,6 +508,7 @@ namespace Ossia
 
 		public void RemoveCallback(ValueCallbackDelegate c)
 		{
+			Debug.Log ("remove");
 			callbacks.RemoveAll(x => x == c);
 			if (callbacks.Count == 0) {
 				Network.ossia_address_remove_callback (ossia_address, ossia_callback_it);
@@ -480,28 +526,36 @@ namespace Ossia
 		public static extern IntPtr ossia_address_get_domain (
 			IntPtr address);
 
-
-		[DllImport ("ossia")]
-		public static extern IntPtr ossia_address_add_callback (
-			IntPtr address,
-			IntPtr callback);
-
-		[DllImport ("ossia")]
-		public static extern void ossia_address_remove_callback (
-			IntPtr address,
-			IntPtr index);
-
         */
 	}
 
-	public class Node
+	public class Node : IDisposable
 	{
 		internal IntPtr ossia_node;
 		Address ossia_address;
+		bool disposed = false;
 
 		public Node(IntPtr n)
 		{
 			ossia_node = n;
+		}
+
+		public void Dispose()
+		{ 
+			Dispose(true);
+			GC.SuppressFinalize(this);           
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed)
+				return; 
+
+			if (disposing) {
+				Free();
+			}
+
+			disposed = true;
 		}
 
 		public Node AddChild (string name)
@@ -541,6 +595,18 @@ namespace Ossia
 			Network.ossia_node_remove_address (ossia_node, ossia_address.ossia_address);
 		}
 			
+	}
+
+
+	[System.AttributeUsage(System.AttributeTargets.All)]
+	public class Expose : System.Attribute
+	{
+		public string ExposedName;
+
+		public Expose(string name)
+		{
+			this.ExposedName = name;
+		}
 	}
 
 }
