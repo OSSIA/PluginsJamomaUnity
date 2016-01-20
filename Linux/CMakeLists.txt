@@ -33,3 +33,9 @@ set_target_properties(PluginOssiaUnity PROPERTIES
 )
 
 target_link_libraries(PluginOssiaUnity Jamoma::Foundation Jamoma::Modular Jamoma::Score)
+
+
+add_executable(test_reception
+    test/test_reception.cpp)
+set_property(TARGET test_reception PROPERTY CXX_STANDARD 14)
+target_link_libraries(test_reception PRIVATE ossia)

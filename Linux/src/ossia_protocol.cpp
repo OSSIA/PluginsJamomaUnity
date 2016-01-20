@@ -2,7 +2,7 @@
 #include <iostream>
 extern "C"
 {
-static ossia_log_fun_t log_fun;
+static ossia_log_fun_t log_fun = nullptr;
 void ossia_set_debug_logger(ossia_log_fun_t fp)
 {
     log_fun = fp;
@@ -10,7 +10,8 @@ void ossia_set_debug_logger(ossia_log_fun_t fp)
 
 void ossia_log_error(const char* error)
 {
-    log_fun(error);
+    if(log_fun)
+        log_fun(error);
 }
 
 ossia_protocol_t ossia_protocol_local_create()
