@@ -333,6 +333,32 @@ namespace Ossia
 		{
 			return new Value(Network.ossia_value_create_char(v));
 		}
+
+		static public Value createFromObject(object obj)
+		{
+			if (obj is int) 
+			{
+				return createInt ((int)obj);
+			} 
+			else if (obj is bool) 
+			{
+				return createBool ((bool)obj);
+			}
+			else if (obj is float)
+			{
+				return createFloat ((float)obj);
+			}
+			else if (obj is char)
+			{
+				return createChar ((char)obj);
+			}
+			else if (obj is string)
+			{
+				return createString ((string)obj);
+			}
+
+			throw new Exception("unimplemented type");
+		}
 	}
 	public class Value : IDisposable
 	{
@@ -356,7 +382,7 @@ namespace Ossia
 				return; 
 
 			if (disposing) {
-				Free();
+				//Free();
 			}
 
 			disposed = true;
@@ -391,6 +417,104 @@ namespace Ossia
 		public string GetString()
 		{
 			return Network.ossia_value_to_string(ossia_value);
+		}
+
+
+		static public ossia_type ObjectToOssiaType(object obj)
+		{
+			if (obj is int) 
+			{
+				return ossia_type.INT;
+			} 
+			else if (obj is bool) 
+			{
+				return ossia_type.BOOL;
+			}
+			else if (obj is float)
+			{
+				return ossia_type.FLOAT;
+			}
+			else if (obj is char)
+			{
+				return ossia_type.CHAR;
+			}
+			else if (obj is string)
+			{
+				return ossia_type.STRING;
+			}
+
+			throw new Exception("unimplemented type");
+		}
+
+		static public ossia_type TypeToOssia<T>(T obj)
+		{
+			if (obj is int) 
+			{
+				return ossia_type.INT;
+			} 
+			else if (obj is bool) 
+			{
+				return ossia_type.BOOL;
+			}
+			else if (obj is float)
+			{
+				return ossia_type.FLOAT;
+			}
+			else if (obj is char)
+			{
+				return ossia_type.CHAR;
+			}
+			else if (obj is string)
+			{
+				return ossia_type.STRING;
+			}
+
+			throw new Exception("unimplemented type" + obj.GetType());
+		}
+
+
+		static public ossia_type TypeToOssia2(Type obj)
+		{
+			if (obj == typeof(System.Int32)) 
+			{
+				return ossia_type.INT;
+			} 
+			else if (obj == typeof(System.Boolean)) 
+			{
+				return ossia_type.BOOL;
+			}
+			else if (obj == typeof(System.Single))
+			{
+				return ossia_type.FLOAT;
+			}
+			else if (obj == typeof(System.Char))
+			{
+				return ossia_type.CHAR;
+			}
+			else if (obj == typeof(System.String))
+			{
+				return ossia_type.STRING;
+			}
+
+			throw new Exception("unimplemented type" + obj.GetType());
+		}
+
+		public object ToObject()
+		{
+			switch (GetOssiaType ()) {
+			case ossia_type.INT:
+				return GetInt ();
+			case ossia_type.FLOAT:
+				return GetFloat ();
+			case ossia_type.BOOL:
+				return GetBool ();
+			case ossia_type.CHAR:
+				return GetChar ();
+			case ossia_type.STRING:
+				return GetString ();
+			default:
+				throw new Exception("unimplemented type");
+			}
 		}
 
 	}

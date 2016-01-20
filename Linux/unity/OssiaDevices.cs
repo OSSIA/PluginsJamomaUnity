@@ -39,7 +39,7 @@ public class OssiaDevices : MonoBehaviour {
 			Ossia.Network.ossia_set_debug_logger (intptr_delegate);
 
 			local_protocol = new Ossia.Local();
-			local_device = new Ossia.Device(local_protocol, "myGame");
+			local_device = new Ossia.Device(local_protocol, "newDevice");
 
 			scene_node = local_device.AddChild("scene");
 
@@ -51,6 +51,8 @@ public class OssiaDevices : MonoBehaviour {
 			minuit_device = new Ossia.Device(
 				minuit_protocol,
 				"i-score");
+
+			Debug.Log ("Created ossia devices");
 		}
 	}
 
@@ -63,6 +65,8 @@ public class OssiaDevices : MonoBehaviour {
 	void OnApplicationQuit() {
 		minuit_device.Free ();
 		local_device.Free ();
+
+		Debug.Log ("Freed ossia devices");
 	}
 
 
