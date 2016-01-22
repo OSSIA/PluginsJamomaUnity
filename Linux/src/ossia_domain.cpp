@@ -5,48 +5,58 @@ extern "C"
 ossia_value_t ossia_domain_get_min(
         ossia_domain_t domain)
 {
-    if(!domain)
-        return nullptr;
+    return safe_function(__func__, [=] () -> ossia_value_t {
+        if(!domain)
+            return nullptr;
 
-    return convert(domain->domain->getMin());
+        return convert(domain->domain->getMin());
+    });
 }
 
 void ossia_domain_set_min(
         ossia_domain_t domain,
         ossia_value_t value)
 {
-    if(!domain)
-        return;
-    if(!value)
-        return;
+    return safe_function(__func__, [=] {
+        if(!domain)
+            return;
+        if(!value)
+            return;
 
-    domain->domain->setMin(convert(value));
+        domain->domain->setMin(convert(value));
+    });
 }
 
 ossia_value_t ossia_domain_get_max(
         ossia_domain_t domain)
 {
-    if(!domain)
-        return nullptr;
+    return safe_function(__func__, [=] () -> ossia_value_t {
+        if(!domain)
+            return nullptr;
 
-    return convert(domain->domain->getMax());
+        return convert(domain->domain->getMax());
+    });
 }
 
 void ossia_domain_set_max(
         ossia_domain_t domain,
         ossia_value_t value)
 {
-    if(!domain)
-        return;
-    if(!value)
-        return;
+    return safe_function(__func__, [=] {
+        if(!domain)
+            return;
+        if(!value)
+            return;
 
-    domain->domain->setMax(convert(value));
+        domain->domain->setMax(convert(value));
+    });
 }
 
 void ossia_domain_free(ossia_domain_t domain)
 {
-    delete domain;
+    return safe_function(__func__, [=] {
+        delete domain;
+    });
 }
 
 }

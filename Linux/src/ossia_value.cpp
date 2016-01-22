@@ -1,4 +1,21 @@
 #include "ossia_utils.hpp"
+
+template<typename Requested_T>
+auto get_value(ossia_value_t val)
+    -> decltype(((Requested_T*)nullptr)->value)
+{
+    if(!val)
+        return {};
+
+    OSSIA::Value* ossia_val = convert(val);
+    if(auto casted_val = dynamic_cast<Requested_T*>(ossia_val))
+    {
+        return casted_val->value;
+    }
+
+    return {};
+}
+
 extern "C"
 {
 
@@ -51,73 +68,42 @@ ossia_value_t ossia_value_create_tuple(
 
 void ossia_value_free(ossia_value_t value)
 {
-    delete convert(value);
+    return safe_function(__func__, [=] {
+        delete convert(value);
+    });
 }
 
 ossia_type ossia_value_get_type(
         ossia_value_t val)
 {
+    if(!val)
+        return static_cast<ossia_type>(-1);
+
     return convert(convert(val)->getType());
 }
 
 int ossia_value_to_int(
         ossia_value_t val)
 {
-    if(!val)
-        return {};
-
-    OSSIA::Value* ossia_val = convert(val);
-    if(auto casted_val = dynamic_cast<OSSIA::Int*>(ossia_val))
-    {
-        return casted_val->value;
-    }
-
-    return {};
+    return get_value<OSSIA::Int>(val);
 }
 
 float ossia_value_to_float(
         ossia_value_t val)
 {
-    if(!val)
-        return {};
-
-    OSSIA::Value* ossia_val = convert(val);
-    if(auto casted_val = dynamic_cast<OSSIA::Float*>(ossia_val))
-    {
-        return casted_val->value;
-    }
-
-    return {};
+    return get_value<OSSIA::Float>(val);
 }
 
 bool ossia_value_to_bool(
         ossia_value_t val)
 {
-    if(!val)
-        return {};
-
-    OSSIA::Value* ossia_val = convert(val);
-    if(auto casted_val = dynamic_cast<OSSIA::Bool*>(ossia_val))
-    {
-        return casted_val->value;
-    }
-
-    return {};
+    return get_value<OSSIA::Bool>(val);
 }
 
 char ossia_value_to_char(
         ossia_value_t val)
 {
-    if(!val)
-        return {};
-
-    OSSIA::Value* ossia_val = convert(val);
-    if(auto casted_val = dynamic_cast<OSSIA::Char*>(ossia_val))
-    {
-        return casted_val->value;
-    }
-
-    return {};
+    return get_value<OSSIA::Char>(val);
 }
 
 const char* ossia_value_to_string(
@@ -149,6 +135,6 @@ void ossia_value_to_tuple(
         ossia_value_t* out,
         int* size)
 {
-
+    // todo;
 }
 }

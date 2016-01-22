@@ -10,16 +10,19 @@
 #include <Editor/Value.h>
 #include <Editor/Domain.h>
 
+#include <TTBase.h>
+
 #include <algorithm>
 #include <cstring>
 #include <cstdio>
+#include "tinyformat.h"
 
-#define DEBUG_LOG_FMT(fmt, ...)    \
-    do { \
-    static char buf[4096]; \
-    sprintf(buf, fmt, ##__VA_ARGS__); \
-    ossia_log_error(buf); \
-    } while (0)
+template<typename Str, typename... Args>
+void DEBUG_LOG_FMT(Str fmt, Args... args)
+{
+    auto str = tfm::format(fmt, args...);
+    ossia_log_error(str.c_str());
+}
 
 struct ossia_protocol
 {
@@ -90,3 +93,27 @@ inline auto convert(ossia_value_t v)
 {
     return static_cast<OSSIA::Value*>(v);
 }
+
+
+template<typename Fun>
+auto safe_function(const char name[], Fun f)
+try
+{
+    return f();
+}
+catch(TTException& e)
+{
+    DEBUG_LOG_FMT("%s: %s", name, e.getReason());
+    return decltype(f())();
+}
+catch(const std::exception& e)
+{
+    DEBUG_LOG_FMT("%s: %s", name, e.what());
+    return decltype(f())();
+}
+catch(...)
+{
+    DEBUG_LOG_FMT("%s: Exception caught", name);
+    return decltype(f())();
+}
+
