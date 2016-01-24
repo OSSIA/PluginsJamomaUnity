@@ -75,13 +75,13 @@ namespace AssemblyCSharp
 				using (var x_val = pos_x_addr.PullValue ()) {
 					if (x_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
 						pos.x = x_val.GetFloat ();
-					} 
+					}
 				}
 
 				using (var y_val = pos_y_addr.PullValue ()) {
 					if (y_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
 						pos.y = y_val.GetFloat ();
-					} 
+					}
 				}
 
 				using (var z_val = pos_z_addr.PullValue ()) {
@@ -89,6 +89,8 @@ namespace AssemblyCSharp
 						pos.z = z_val.GetFloat ();
 					}
 				}
+
+				obj.transform.position = pos;
 			}
 
 			{
@@ -96,19 +98,19 @@ namespace AssemblyCSharp
 				using (var w_val = rot_w_addr.PullValue ()) {
 					if (w_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
 						rot.w = w_val.GetFloat ();
-					} 
+					}
 				}
 
 				using (var x_val = rot_x_addr.PullValue ()) {
 					if (x_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
 						rot.x = x_val.GetFloat ();
-					} 
+					}
 				}
 
 				using (var y_val = rot_y_addr.PullValue ()) {
 					if (y_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
 						rot.y = y_val.GetFloat ();
-					} 
+					}
 				}
 
 				using (var z_val = rot_z_addr.PullValue ()) {
@@ -116,7 +118,10 @@ namespace AssemblyCSharp
 						rot.z = z_val.GetFloat ();
 					}
 				}
+
+				obj.transform.rotation = rot;
 			}
+
 		}
 
 		public void SendUpdates(GameObject obj)
@@ -197,7 +202,7 @@ namespace AssemblyCSharp
 
 		public OssiaEnabledComponent(MonoBehaviour comp, Ossia.Node node)
 		{
-			component = comp;			
+			component = comp;
 			component_node = node;
 		}
 
@@ -217,7 +222,7 @@ namespace AssemblyCSharp
 		}
 	}
 
-	public class OssiaObject : MonoBehaviour 
+	public class OssiaObject : MonoBehaviour
 	{
 		public bool ReceiveUpdates;
 		public bool SendUpdates;
@@ -239,7 +244,7 @@ namespace AssemblyCSharp
 		{
 			List<OssiaEnabledParameter> nodes = new List<OssiaEnabledParameter>();
 			Debug.Log ("Registering component" + component.GetType().ToString());
-			const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly; 
+			const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 			FieldInfo[] fields = component.GetType().GetFields(flags);
 
 			// Find the fields that are marked for exposition
@@ -274,11 +279,11 @@ namespace AssemblyCSharp
 			ossia_transform = new OssiaTransform (obj, child_node);
 
 			// For each component, we check the public fields.
-			// If these fields have the Ossia.Expose attribute, 
+			// If these fields have the Ossia.Expose attribute,
 			// then we create node structures for them.
-			MonoBehaviour[] comps = obj.GetComponents <MonoBehaviour>(); 
+			MonoBehaviour[] comps = obj.GetComponents <MonoBehaviour>();
 			foreach (MonoBehaviour component in comps) {
-				RegisterComponent (component);				
+				RegisterComponent (component);
 			}
 		}
 

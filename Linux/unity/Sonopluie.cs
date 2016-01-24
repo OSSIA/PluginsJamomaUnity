@@ -1,19 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Ossia;
 
-public class OssiaAttribute : MonoBehaviour {
+public class Sonopluie : MonoBehaviour {
 
-	[Ossia.Expose("sympa")]
-	public int Sympa;
+	public bool ActiverParapluie;
+	public Vector3 positionPersonne;
 
 	// Use this for initialization
 	void Start () {
-
+	
 	}
-
+	
 	// Update is called once per frame
 	void Update () {
-
+	
 	}
 }
