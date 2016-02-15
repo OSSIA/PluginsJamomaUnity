@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.4)
 
 project(PluginJamomaUnity CXX)
 find_package(Jamoma COMPONENTS Foundation Modular Score)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/jcelerier/travail/test-jamoma-unity)
 set(BUILD_SHARED_LIBS On)
 
 add_subdirectory(API)
