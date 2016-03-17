@@ -1,5 +1,14 @@
 #include "ossia_utils.hpp"
 #include <iostream>
+#include <map>
+
+
+static std::map<std::string, ossia_device_t>& static_devices()
+{
+    static std::map<std::string, ossia_device_t> devs;
+    return devs;
+}
+
 extern "C"
 {
 ossia_device_t ossia_device_create(
@@ -7,9 +16,19 @@ ossia_device_t ossia_device_create(
         const char* name)
 {
     return safe_function(__func__, [=] {
+        std::string str_name(name);
+        auto& devs = static_devices();
+        auto it = devs.find(str_name);
+        if(it != devs.end())
+        {
+            return it->second;
+        }
+
         auto dev = new ossia_device{OSSIA::Device::create(protocol->protocol, name)};
 
         delete protocol;
+        devs.insert(std::make_pair(str_name, dev));
+
         return dev;
     });
 }
@@ -17,6 +36,16 @@ ossia_device_t ossia_device_create(
 void ossia_device_free(ossia_device_t device)
 {
     return safe_function(__func__, [=] {
+        if(device && device->device)
+        {
+            auto& devs = static_devices();
+            auto it = devs.find(device->device->getName());
+            if(it != devs.end())
+            {
+                devs.erase(it);
+            }
+        }
+
         delete device;
     });
 }
