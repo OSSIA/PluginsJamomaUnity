@@ -12,27 +12,9 @@ unsafe public class LoadPreset : MonoBehaviour {
 	
 	public string jsonname = "Assets/preset.json";
 
-	public delegate void debug_log_delegate(string str);
-	static void DebugLogCallback(string str)
-	{
-		Debug.Log("BLUEYETI : " + str);
-	}
 	// Use this for initialization
 	void Start () {
-
-		// Setup debug log delegate
-		debug_log_delegate callback_delegate = new debug_log_delegate (DebugLogCallback);
-
-		// Convert callback_delegate into a function pointer that can be
-		// used in unmanaged code.
-		IntPtr intptr_delegate = 
-			Marshal.GetFunctionPointerForDelegate (callback_delegate);
-
-		// Call the API passing along the function pointer.
-		BlueYetiAPI.blueyeti_set_debug_logger (intptr_delegate);
-
-
-		 
+			 
 		string jsontext = System.IO.File.ReadAllText (jsonname);
 		Debug.Log (jsontext);
 
@@ -88,7 +70,7 @@ unsafe public class LoadPreset : MonoBehaviour {
 
 			p.ApplyToDevice(local_device, true);
 			//IntPtr res;
-			//BlueYetiAPI.blueyeti_devices_to_string(dev.GetDevice().GetDevice(), &res);
+			//BlueYetiAPI.ossia_preset_devices_to_string(dev.GetDevice().GetDevice(), &res);
 			//Debug.Log(Marshal.PtrToStringAuto(res));
 		}
 		catch (Exception e) {

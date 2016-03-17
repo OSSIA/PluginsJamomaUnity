@@ -227,12 +227,7 @@ ossia_preset_result ossia_devices_apply_preset(ossia_device_t odevptr, ossia_pre
             return OSSIA_PRESETS_NULL_DEVICE;
         }
 
-        {
-          auto err = std::string("Exploring node: ") + std::to_string((intptr_t)odevptr); //+ " that has " + std::to_string(node->children().size()) + " children.";
-          ossia_log_error(err.c_str());
-        }
-
-        //ossia::devices::apply_preset(odevptr->device, preset->impl, keep_arch_token);
+        ossia::devices::apply_preset(odevptr->device, preset->impl, keep_arch_token);
     }
     catch (...) {
         return lippincott();
