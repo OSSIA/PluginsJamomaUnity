@@ -2,17 +2,12 @@
 #include <iostream>
 extern "C"
 {
-static ossia_log_fun_t log_fun = nullptr;
-void ossia_set_debug_logger(ossia_log_fun_t fp)
+// MOVEME
+void ossia_string_free(char* str)
 {
-    log_fun = fp;
+    free(str); // Not delete because str has been allocated with strdup.
 }
 
-void ossia_log_error(const char* error)
-{
-    if(log_fun)
-        log_fun(error);
-}
 
 ossia_protocol_t ossia_protocol_local_create()
 {

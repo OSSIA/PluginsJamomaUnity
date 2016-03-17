@@ -1,4 +1,4 @@
-#include "../src/ossia.h"
+#include <ossia/ossia.h>
 #include <iostream>
 #include <thread>
 #include <chrono>

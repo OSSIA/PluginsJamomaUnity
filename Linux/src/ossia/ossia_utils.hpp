@@ -15,7 +15,8 @@
 #include <algorithm>
 #include <cstring>
 #include <cstdio>
-#include "tinyformat.h"
+#include <common/tinyformat.h>
+#include <common/ossia_log.h>
 
 template<typename Str, typename... Args>
 void DEBUG_LOG_FMT(Str fmt, Args... args)
@@ -61,12 +62,12 @@ inline auto convert(ossia_type t)
 
 inline auto convert(ossia_access_mode t)
 {
-    return static_cast<OSSIA::Address::AccessMode>(t);
+    return static_cast<OSSIA::AccessMode>(t);
 }
 
 inline auto convert(ossia_bounding_mode t)
 {
-    return static_cast<OSSIA::Address::BoundingMode>(t);
+    return static_cast<OSSIA::BoundingMode>(t);
 }
 
 inline auto convert(OSSIA::Value::Type t)
@@ -74,12 +75,12 @@ inline auto convert(OSSIA::Value::Type t)
     return static_cast<ossia_type>(t);
 }
 
-inline auto convert(OSSIA::Address::AccessMode t)
+inline auto convert(OSSIA::AccessMode t)
 {
     return static_cast<ossia_access_mode>(t);
 }
 
-inline auto convert(OSSIA::Address::BoundingMode t)
+inline auto convert(OSSIA::BoundingMode t)
 {
     return static_cast<ossia_bounding_mode>(t);
 }

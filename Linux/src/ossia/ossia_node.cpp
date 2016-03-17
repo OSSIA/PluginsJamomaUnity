@@ -22,12 +22,23 @@ void ossia_node_remove_child(
 
         if(it != cld.end())
         {
-            node->node->children().erase(it);
+            node->node->erase(it);
         }
         delete child;
     });
 }
 
+const char* ossia_node_get_name(ossia_node_t node)
+{
+    return safe_function(__func__, [=] () -> const char* {
+        if(!node)
+            return nullptr;
+
+        if(!node->node)
+            return nullptr;
+        return strdup(node->node->getName().c_str());
+    });
+}
 
 ossia_node_t ossia_node_add_child(
         ossia_node_t node,

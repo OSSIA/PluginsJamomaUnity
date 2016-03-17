@@ -17,24 +17,45 @@ ossia_device_t ossia_device_create(
 {
     return safe_function(__func__, [=] {
         std::string str_name(name);
+
+        // Look in our cache
         auto& devs = static_devices();
         auto it = devs.find(str_name);
         if(it != devs.end())
         {
+            // Found the device in the cache
             return it->second;
         }
+        else
+        {
+            // Create a device and add it to the cache.
+            auto dev = new ossia_device{OSSIA::Device::create(protocol->protocol, str_name)};
 
-        auto dev = new ossia_device{OSSIA::Device::create(protocol->protocol, name)};
+            //TODO Free protocol
+            devs.insert(std::make_pair(str_name, dev));
 
-        delete protocol;
-        devs.insert(std::make_pair(str_name, dev));
+            return dev;
+        }
 
-        return dev;
+    });
+}
+
+const char* ossia_device_get_name(ossia_device_t node)
+{
+    return safe_function(__func__, [=] () -> const char* {
+        if(!node)
+            return nullptr;
+
+        if(!node->device)
+            return nullptr;
+
+        return strdup(node->device->getName().c_str());
     });
 }
 
 void ossia_device_free(ossia_device_t device)
 {
+    return ;
     return safe_function(__func__, [=] {
         if(device && device->device)
         {
@@ -99,7 +120,7 @@ void ossia_device_remove_child(
 
         if(it != cld.end())
         {
-            device->device->children().erase(it);
+            device->device->erase(it);
         }
         delete child;
     });
