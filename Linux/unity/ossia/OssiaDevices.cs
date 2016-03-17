@@ -8,11 +8,12 @@ using Ossia;
 
 public class OssiaDevices : MonoBehaviour {
 	static bool set = false;
-	static Ossia.Local local_protocol;
-	static Ossia.Device local_device;
+	static Ossia.Local local_protocol = null;
 
-	static Ossia.Minuit minuit_protocol;
-	static Ossia.Device minuit_device;
+	static Ossia.Device local_device = null;
+
+	static Ossia.Minuit minuit_protocol = null;
+	static Ossia.Device minuit_device = null;
 
 	static Ossia.Node scene_node;
 	Ossia.Network main;
@@ -27,32 +28,32 @@ public class OssiaDevices : MonoBehaviour {
 	void Awake ()
 	{
 		if (!set) {
-			set = true;
-			debug_log_delegate callback_delegate = new debug_log_delegate (DebugLogCallback);
+				set = true;
+				debug_log_delegate callback_delegate = new debug_log_delegate (DebugLogCallback);
 
-			// Convert callback_delegate into a function pointer that can be
-			// used in unmanaged code.
-			IntPtr intptr_delegate = 
-				Marshal.GetFunctionPointerForDelegate (callback_delegate);
+				// Convert callback_delegate into a function pointer that can be
+				// used in unmanaged code.
+				IntPtr intptr_delegate = 
+					Marshal.GetFunctionPointerForDelegate (callback_delegate);
 
-			// Call the API passing along the function pointer.
-			Ossia.Network.ossia_set_debug_logger (intptr_delegate);
+				// Call the API passing along the function pointer.
+				Ossia.Network.ossia_set_debug_logger (intptr_delegate);
 
-			local_protocol = new Ossia.Local();
-			local_device = new Ossia.Device(local_protocol, "newDevice");
+				local_protocol = new Ossia.Local ();
+				local_device = new Ossia.Device (local_protocol, "newDevice");
 
-			scene_node = local_device.AddChild("scene");
+			    Debug.Log (local_device.GetName ());
+				scene_node = local_device.AddChild ("scene");
 
 
-			minuit_protocol = new Ossia.Minuit(
-				"127.0.0.1", 
-				13579, 
-				9998);
-			minuit_device = new Ossia.Device(
-				minuit_protocol,
-				"i-score");
-
-			Debug.Log ("Created ossia devices");
+				minuit_protocol = new Ossia.Minuit (
+					"127.0.0.1", 
+					13579, 
+					9998);
+				minuit_device = new Ossia.Device (
+					minuit_protocol,
+					"i-score");
+				Debug.Log ("Created ossia devices");
 		}
 	}
 
@@ -69,5 +70,12 @@ public class OssiaDevices : MonoBehaviour {
 		Debug.Log ("Freed ossia devices");
 	}
 
+	public Ossia.Device GetDevice() {
+		return local_device;
+	}
+
+	public Ossia.Protocol GetProtocol() {
+		return local_protocol;
+	}
 
 }

@@ -81,6 +81,10 @@ namespace Ossia
 			IntPtr node);
 
 		[DllImport ("ossia")]
+		public static extern IntPtr ossia_device_get_name (
+			IntPtr device);
+		
+		[DllImport ("ossia")]
 		public static extern int ossia_device_child_size (
 			IntPtr device);
 
@@ -107,6 +111,10 @@ namespace Ossia
 			IntPtr node);
 
 
+		[DllImport ("ossia")]
+		public static extern IntPtr ossia_node_get_name (
+			IntPtr device);
+		
 		[DllImport ("ossia")]
 		public static extern int ossia_node_child_size (
 			IntPtr node);
@@ -276,6 +284,9 @@ namespace Ossia
 
 		[DllImport ("ossia")]
 		public static extern void ossia_set_debug_logger( IntPtr fp );
+
+		[DllImport ("ossia")]
+		public static extern void ossia_string_free( IntPtr str );
 	}
 
 	public class Protocol
@@ -362,7 +373,7 @@ namespace Ossia
 	}
 	public class Value : IDisposable
 	{
-		internal IntPtr ossia_value;
+		internal IntPtr ossia_value = IntPtr.Zero;
 		bool disposed = false;
 
 		internal protected Value(IntPtr v)
@@ -382,7 +393,7 @@ namespace Ossia
 				return; 
 
 			if (disposing) {
-				//Free();
+				//Free(); TODO memleak
 			}
 
 			disposed = true;
@@ -519,14 +530,44 @@ namespace Ossia
 
 	}
 
-
 	public class Device
 	{
-		internal IntPtr ossia_device;
+		internal IntPtr ossia_device = IntPtr.Zero;
+		bool disposed = false;
 
 		public Device(Protocol proto, string name)
 		{
 			ossia_device = Network.ossia_device_create(proto.ossia_protocol, name);
+			Debug.Log ("Created device address : " + ossia_device);
+		}
+		/*
+		public void Dispose()
+		{ 
+			Dispose(true);
+			GC.SuppressFinalize(this);           
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed)
+				return; 
+
+			if (disposing) {
+				Free ();
+			}
+
+			disposed = true;
+		}
+		*/
+
+		public string GetName()
+		{
+			IntPtr nameptr = Network.ossia_device_get_name (ossia_device);
+			if (nameptr == IntPtr.Zero)
+				return "ENONAME";
+			string name = Marshal.PtrToStringAnsi (nameptr);
+			Network.ossia_string_free(nameptr);
+			return name;
 		}
 
 		public Node AddChild (string name)
@@ -554,12 +595,16 @@ namespace Ossia
 		{
 			return new Node(Network.ossia_device_get_child (ossia_device, child));
 		}
+
+		public IntPtr GetDevice() {
+			return ossia_device;
+		}
 	}
 
 	public class Address
 	{
-		internal IntPtr ossia_address;
-		internal IntPtr ossia_callback_it;
+		internal IntPtr ossia_address = IntPtr.Zero;
+		internal IntPtr ossia_callback_it = IntPtr.Zero;
 		List<ValueCallbackDelegate> callbacks; 
 
 		public Address(IntPtr address)
@@ -655,7 +700,7 @@ namespace Ossia
 
 	public class Node : IDisposable
 	{
-		internal IntPtr ossia_node;
+		internal IntPtr ossia_node = IntPtr.Zero;
 		Address ossia_address;
 		bool disposed = false;
 
@@ -682,6 +727,17 @@ namespace Ossia
 			disposed = true;
 		}
 
+		public string GetName()
+		{
+			IntPtr nameptr = Network.ossia_node_get_name (ossia_node);
+			if (nameptr == IntPtr.Zero)
+				return "ENONAME";
+			string name = Marshal.PtrToStringAnsi (nameptr);
+			Network.ossia_string_free(nameptr);
+			return name;
+		}
+
+
 		public Node AddChild (string name)
 		{
 			return new Node(Network.ossia_node_add_child (ossia_node, name));
@@ -695,7 +751,7 @@ namespace Ossia
 
 		public void Free()
 		{
-			Network.ossia_node_free (ossia_node);
+			//Network.ossia_node_free (ossia_node);
 		}
 
 		public int ChildSize()
