@@ -268,7 +268,7 @@ ossia_preset_result ossia_devices_to_string(ossia_device_t odev, const char ** b
     return OSSIA_PRESETS_NULL_DEVICE;
 }
 
-ossia_preset_result ossia_device_get_node(ossia_device_t odev, const char* addr, ossia_node_t* nodeptr) {
+ossia_preset_result ossia_devices_get_node(ossia_device_t odev, const char* addr, ossia_node_t* nodeptr) {
     if (nodeptr == nullptr) {
         return OSSIA_PRESETS_INVALID_PTR;
     }
@@ -277,7 +277,11 @@ ossia_preset_result ossia_device_get_node(ossia_device_t odev, const char* addr,
     }
     if (odev != nullptr) {
         try {
-            *nodeptr = new ossia_node{ossia::devices::get_node(odev->device, std::string(addr))};
+            std::shared_ptr<OSSIA::Node> gotnode = ossia::devices::get_node(odev->device, std::string(addr));
+            if (gotnode == nullptr) {
+                return OSSIA_PRESETS_INVALID_ADDRESS;
+            }
+            *nodeptr = new ossia_node{gotnode};
             return OSSIA_PRESETS_OK;
         }
         catch (...) {
@@ -285,6 +289,29 @@ ossia_preset_result ossia_device_get_node(ossia_device_t odev, const char* addr,
         }
     }
     return OSSIA_PRESETS_NULL_DEVICE;
+}
+
+ossia_preset_result ossia_devices_get_child(ossia_node_t root, const char * childname, ossia_node_t * nodeptr) {
+    if (nodeptr == nullptr) {
+        return OSSIA_PRESETS_INVALID_PTR;
+    }
+    if (childname == nullptr) {
+        return OSSIA_PRESETS_INVALID_ADDRESS;
+    }
+    if (root == nullptr) {
+        return OSSIA_PRESETS_NULL_DEVICE;
+    }
+    try {
+        std::shared_ptr<OSSIA::Node> gotnode = ossia::devices::get_node(root->node, std::string(childname));
+        if (gotnode == nullptr) {
+            return OSSIA_PRESETS_INVALID_ADDRESS;
+        }
+        *nodeptr = new ossia_node{gotnode};
+    }
+    catch (...) {
+        return lippincott();
+    }
+    return OSSIA_PRESETS_OK;
 }
 
 ossia_preset_result ossia_free_string(const char * strptr) {
@@ -735,7 +762,6 @@ std::shared_ptr<OSSIA::Node> get_node_node(const std::shared_ptr<OSSIA::Node> ro
             }
         }
     }
-
     return res;
 }
 

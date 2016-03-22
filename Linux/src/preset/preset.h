@@ -188,9 +188,22 @@ ossia_preset_result ossia_devices_to_string(
  * @return A result code
  */
 
-ossia_preset_result ossia_device_get_node(
+ossia_preset_result ossia_devices_get_node(
         ossia_device_t,
         const char *,
+        ossia_node_t*);
+
+/**
+ * @brief ossia_devices_get_child
+ * @param An existing root node
+ * @param A name
+ * @param A node receiving the root's child with the specified name if it exists
+ * @return A result code
+ */
+
+ossia_preset_result ossia_devices_get_child(
+        ossia_node_t,
+        const char*,
         ossia_node_t*);
 
 /**
