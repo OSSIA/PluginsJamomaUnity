@@ -774,6 +774,14 @@ namespace Ossia
 		{
 			Network.ossia_node_remove_address (ossia_node, ossia_address.ossia_address);
 		}
+
+		public IntPtr GetNode() {
+			return ossia_node;
+		}
+
+		public Ossia.Address GetAddress() {
+			return ossia_address;
+		}
 			
 	}
 
