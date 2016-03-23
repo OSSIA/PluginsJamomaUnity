@@ -157,18 +157,31 @@ unsafe public class LoadPreset : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		/// Print device when Space bar is pressed \\\
-
 		GameObject controller = GameObject.Find ("OssiaController");
 		OssiaDevices dev = controller.GetComponent<OssiaDevices> ();
 		Ossia.Device local_device = dev.GetDevice();
 		IntPtr dev_ptr = local_device.GetDevice();
+
+		/// Print device when Space bar is pressed \\\
+
 		if (Input.GetKeyDown(KeyCode.Space)) {
 			IntPtr strptr;
 			if (BlueYetiAPI.ossia_devices_to_string (dev_ptr, &strptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
 				Debug.Log (Marshal.PtrToStringAuto (strptr));
 			} else {
 				Debug.Log ("can't display device");
+			}
+		}
+
+		/// Print preset obtained from device when D key is pressed \\\
+
+		if (Input.GetKeyDown (KeyCode.D)) {
+			try {
+				Preset p = new Preset(local_device);
+				Debug.Log(p.WriteJson());
+			}
+			catch (Exception e) {
+				Debug.Log ("Can't convert device to preset: " + e.ToString());
 			}
 		}
 	}

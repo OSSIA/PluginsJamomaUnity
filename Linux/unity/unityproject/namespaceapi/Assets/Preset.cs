@@ -203,7 +203,7 @@ namespace Namespace {
 		/// <param name="str">The string to free.</param>
 
 		[DllImport ("ossia")]
-		public static extern ossia_preset_result_enum ossia_preset_free_string (IntPtr str);
+		public static extern ossia_preset_result_enum ossia_free_string (IntPtr str);
 
 		[DllImport ("ossia")]
 		public static extern ossia_preset_result_enum ossia_devices_get_node_address (IntPtr node, IntPtr* addr);
@@ -233,14 +233,23 @@ namespace Namespace {
 				}
 			}
 		}
+
+		public Preset(Ossia.Device device) {
+			fixed (IntPtr* presetptr = &preset) {
+				ossia_preset_result_enum code = BlueYetiAPI.ossia_devices_make_preset (device.GetDevice (), presetptr);
+				if (code != ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+					throw new Exception("Error code " + code);
+				}
+			}
+		}
+
 		public string WriteJson() {
 			IntPtr ptr;
 			ossia_preset_result_enum code = BlueYetiAPI.ossia_presets_write_json (preset, &ptr);
 			if (code == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
 				string str = Marshal.PtrToStringAuto (ptr);
-				Debug.Log ("Wrote json \"" + str + "\"");
-				BlueYetiAPI.ossia_preset_free_string (ptr);
-				return str;
+				BlueYetiAPI.ossia_free_string (ptr);
+				return System.String.Copy(str);
 			} else {
 				throw new Exception ("Error code " + code);
 			}
@@ -251,7 +260,7 @@ namespace Namespace {
 			ossia_preset_result_enum code = BlueYetiAPI.ossia_presets_to_string (preset, &strptr);
 			if (code == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
 				System.String str = Marshal.PtrToStringAuto (strptr);
-				BlueYetiAPI.ossia_preset_free_string (strptr);
+				BlueYetiAPI.ossia_free_string (strptr);
 				return str;
 			} else {
 				throw new Exception ("Error code " + code);
