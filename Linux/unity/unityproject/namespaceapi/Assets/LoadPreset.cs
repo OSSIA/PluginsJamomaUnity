@@ -13,71 +13,69 @@ unsafe public class LoadPreset : MonoBehaviour {
 	public string jsonname = "Assets/preset.json";
 	public Preset p;
 
+	Vector3 getVector(Ossia.Node node, Vector3 basevec) {
+		Vector3 result = new Vector3 (basevec.x, basevec.y, basevec.z);
+
+		string rootname = "/" + node.GetName ();
+		IntPtr leafptr;
+		if (BlueYetiAPI.ossia_devices_get_child(node.GetNode(), rootname + "/x", &leafptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+			IntPtr addrptr;
+			if (BlueYetiAPI.ossia_devices_get_node_address(leafptr, &addrptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+				Ossia.Address addr = new Ossia.Address(addrptr);
+				result.x = addr.GetValue ().GetFloat ();
+			}
+		}
+		if (BlueYetiAPI.ossia_devices_get_child(node.GetNode(), rootname + "/y", &leafptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+			IntPtr addrptr;
+			if (BlueYetiAPI.ossia_devices_get_node_address(leafptr, &addrptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+				Ossia.Address addr = new Ossia.Address(addrptr);
+				result.y = addr.GetValue ().GetFloat ();
+			}
+		}
+		if (BlueYetiAPI.ossia_devices_get_child(node.GetNode(), rootname + "/z", &leafptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+			IntPtr addrptr;
+			if (BlueYetiAPI.ossia_devices_get_node_address(leafptr, &addrptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+				Ossia.Address addr = new Ossia.Address(addrptr);
+				result.z = addr.GetValue ().GetFloat ();
+			}
+		}
+		return result;	
+	}
+
 	void createCube(Ossia.Node node) {
+
+		/// Create a cube \\\
+
 		Debug.Log ("Creating " + node.GetName ());
 		GameObject createdgo = GameObject.CreatePrimitive (PrimitiveType.Cube);
 		createdgo.name = node.GetName ();
-		Rigidbody rb = createdgo.GetComponent<Rigidbody> ();
+		createdgo.AddComponent<AssemblyCSharp.OssiaObject> ();
+
+		/// Import parameters \\\
 
 		for (int i = 0; i < node.ChildSize(); ++i) {
 			Ossia.Node child = node.GetChild (i);
-			if (child.GetName() == "position") {
-				for (int j = 0; j < child.ChildSize(); ++j) {
-					Ossia.Node leaf = child.GetChild(j);
-					Transform t = createdgo.transform;
-					Ossia.Address addr;
-					Ossia.Value oval;
-					float val;
-
-					try {
-						addr = leaf.GetAddress();
-						Debug.Log(addr);
-					}
-					catch (Exception e) {
-						Debug.Log ("Can't get address: " + e.Message);
-						return;
-					}
-
-					try {
-						oval = addr.GetValue();
-					}
-					catch (Exception e) {
-						Debug.Log ("Can't get value: " + e.Message);
-						return;
-					}
-
-					try {
-						val = oval.GetFloat();
-					}
-					catch (Exception e) {
-						Debug.Log ("Can't get float: " + e.Message);
-						return;
-					}
-
-					Debug.Log (val);
-
-					switch (leaf.GetName ()) {
-					case "x": 
-						{
-							createdgo.transform.position = new Vector3(val, t.position.y, t.position.z);
-							break;
-						}
-					case "y": 
-						{
-							createdgo.transform.position = new Vector3(t.position.x, val, t.position.z);
-							break;
-						}
-					case "z": 
-						{
-							createdgo.transform.position = new Vector3(t.position.x, t.position.y, val);
-							break;
-						}
-					default:
-						break;
-					}
-				}
+			switch (child.GetName ()) {
+			case "position":
+				createdgo.transform.position = getVector (child, createdgo.transform.position);
+				break;
+			case "rotation":
+				createdgo.transform.rotation = Quaternion.Euler(getVector (child, createdgo.transform.eulerAngles));
+				break;
+			case "scale":
+				createdgo.transform.localScale = getVector (child, createdgo.transform.localScale);
+				break;
+			default:
+				break;
 			}
 		}
+
+		/// Remove the node containing the parameters, now useless \\\
+
+		GameObject controller = GameObject.Find ("OssiaController");
+		OssiaDevices dev = controller.GetComponent<OssiaDevices> ();
+		Ossia.Device local_device = dev.GetDevice ();
+		local_device.GetChild(0).RemoveChild(node);
 	}
 
 	// Use this for initialization
@@ -121,12 +119,11 @@ unsafe public class LoadPreset : MonoBehaviour {
 			BlueYetiAPI.ossia_devices_to_string(dev_ptr, &res);
 			Debug.Log("Before applying: " + Marshal.PtrToStringAuto(res));
 
-			//IntPtr dummyProtocol = Ossia.Network.ossia_protocol_local_create ();
-			//IntPtr dummyDevice = Ossia.Network.ossia_device_create (dummyProtocol, "dummy");
-
 			p.ApplyToDevice(local_device, false);
 			BlueYetiAPI.ossia_devices_to_string(dev_ptr, &res);
 			Debug.Log("After applying: " + Marshal.PtrToStringAuto(res));
+
+			/// Building instances as Unity objects from values imported in the device \\\
 
 			bool endOfInstances = false;
 			int currentInstance = 1;
@@ -159,7 +156,21 @@ unsafe public class LoadPreset : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-	
+
+		/// Print device when Space bar is pressed \\\
+
+		GameObject controller = GameObject.Find ("OssiaController");
+		OssiaDevices dev = controller.GetComponent<OssiaDevices> ();
+		Ossia.Device local_device = dev.GetDevice();
+		IntPtr dev_ptr = local_device.GetDevice();
+		if (Input.GetKeyDown(KeyCode.Space)) {
+			IntPtr strptr;
+			if (BlueYetiAPI.ossia_devices_to_string (dev_ptr, &strptr) == ossia_preset_result_enum.OSSIA_PRESETS_OK) {
+				Debug.Log (Marshal.PtrToStringAuto (strptr));
+			} else {
+				Debug.Log ("can't display device");
+			}
+		}
 	}
 
 	void OnApplicationQuit() {

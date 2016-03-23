@@ -430,6 +430,9 @@ namespace Ossia
 			return Network.ossia_value_to_string(ossia_value);
 		}
 
+		public IntPtr GetValue() {
+			return ossia_value;
+		}
 
 		static public ossia_type ObjectToOssiaType(object obj)
 		{
