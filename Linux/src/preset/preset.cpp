@@ -299,7 +299,7 @@ ossia_preset_result ossia_devices_get_child(ossia_node_t root, const char * chil
         return OSSIA_PRESETS_INVALID_ADDRESS;
     }
     if (root == nullptr) {
-        return OSSIA_PRESETS_NULL_DEVICE;
+        return OSSIA_PRESETS_NULL_NODE;
     }
     try {
         std::shared_ptr<OSSIA::Node> gotnode = ossia::devices::get_node(root->node, std::string(childname));
@@ -324,6 +324,19 @@ ossia_preset_result ossia_free_string(const char * strptr) {
         }
     }
     return OSSIA_PRESETS_OK;
+}
+
+ossia_preset_result ossia_devices_get_node_address(ossia_node_t node, ossia_address_t* addrbuffer) {
+    if (node == nullptr) {
+        return OSSIA_PRESETS_NULL_NODE;
+    }
+    try {
+        *addrbuffer = new ossia_address{ossia::devices::get_node_address(node->node)};
+        return OSSIA_PRESETS_OK;
+    }
+    catch (...) {
+        return lippincott();
+    }
 }
 
 } // extern "C"
@@ -569,7 +582,7 @@ std::string ossia::presets::to_string(const Preset & preset) {
     return str;
 }
 
-std::string ossia_value_to_string(const OSSIA::Value* val) {
+std::string ossia_value_to_std_string(const OSSIA::Value* val) {
     std::stringstream ss;
     switch (val->getType()) {
     case OSSIA::Value::Type::BOOL :
@@ -597,7 +610,7 @@ std::string ossia::presets::to_string(const PresetPair & pp) {
     std::stringstream ss;
     ss << pp.first << ": ";
     OSSIA::Value* val = pp.second;
-    ss << ossia_value_to_string(val);
+    ss << ossia_value_to_std_string(val);
     return std::string(ss.str());
 }
 
@@ -783,7 +796,7 @@ void to_string_node(const std::shared_ptr<OSSIA::Node> root, std::vector<std::st
         if (root->getAddress()->getValue() != nullptr) {
             keys.push_back(root->getName());
             std::string nodename = boost::join(keys, "/");
-            strnodes.push_back(nodename + ": " + ossia_value_to_string(root->getAddress()->getValue()));
+            strnodes.push_back(nodename + ": " + ossia_value_to_std_string(root->getAddress()->getValue()));
         }
     }
 
@@ -797,6 +810,13 @@ std::string ossia::devices::to_string(OSSIA::Device & ossiadev) {
     to_string_node(root, strnodes, keys);
     ss << "[" << boost::join(strnodes, ", ") << "]";
     return std::string(ss.str());
+}
+
+std::shared_ptr<OSSIA::Address> ossia::devices::get_node_address(std::shared_ptr<OSSIA::Node> node) {
+    if (node == nullptr) {
+        throw new ossia::ossiaException (__LINE__, __FILE__, "Can't get address of a null node");
+    }
+    return node->getAddress();
 }
 
 /// Exception handling ///

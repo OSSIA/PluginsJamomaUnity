@@ -10,6 +10,7 @@ namespace OSSIA
     class Device;
     class Value;
     class Node;
+    class Address;
 }
 
 namespace ossia
@@ -44,7 +45,7 @@ namespace ossia
       presets::Preset make_preset(OSSIA::Device&);
 
       std::shared_ptr<OSSIA::Node> get_node(const std::shared_ptr<OSSIA::Node>, const std::string&);
-
       std::string to_string(OSSIA::Device&);
+      std::shared_ptr<OSSIA::Address> get_node_address(const std::shared_ptr<OSSIA::Node>);
     }
 }

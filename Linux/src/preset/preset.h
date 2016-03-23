@@ -11,9 +11,11 @@ extern "C"
 struct ossia_preset;
 struct ossia_device;
 struct ossia_node;
+struct ossia_address;
 typedef ossia_device* ossia_device_t;
 typedef ossia_preset* ossia_preset_t;
 typedef ossia_node* ossia_node_t;
+typedef ossia_address* ossia_address_t;
 typedef enum ossia_preset_result_enum ossia_preset_result;
 
 /// Preset handling ///
@@ -216,6 +218,10 @@ ossia_preset_result ossia_devices_get_child(
 
 ossia_preset_result ossia_free_string(
         const char*);
+
+ossia_preset_result ossia_devices_get_node_address(
+        ossia_node_t,
+        ossia_address_t*);
 
 #if defined(__cplusplus)
 }
