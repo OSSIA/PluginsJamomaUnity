@@ -8,11 +8,24 @@ find_package(Jamoma COMPONENTS Foundation)
 set(BUILD_SHARED_LIBS On)
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
+set(JAMOMA_LIBS "Modular;Foundation;DSP")
+set(JAMOMA_PLUGINS "Minuit;OSC;AnalysisLib;DataspaceLib;FunctionLib;System;NetworkLib")
+
 if(APPLE)
   set(CMAKE_INSTALL_NAME_DIR @rpath)
   set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
-  set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks;@loader_path;@loader_path/Contents/Frameworks;@loader_path/Contents/Frameworks/jamoma/lib;@executable_path")
+  set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks;@loader_path/../Frameworks/jamoma;@executable_path")
 endif()
+
+
+function(fixup_lib_bundle_jamoma theBundle theExecutable theLibs)
+  install(CODE "EXECUTE_PROCESS(COMMAND install_name_tool -add_rpath @loader_path/../Frameworks/jamoma ${theBundle}/Contents/MacOS/${theExecutable})" )
+
+  foreach(library ${theLibs})
+    install(CODE "EXECUTE_PROCESS(COMMAND install_name_tool -change @executable_path/../MacOS/libJamoma${library}.6.dylib @loader_path/../Frameworks/jamoma/libJamoma${library}.6.dylib ${theBundle}/Contents/MacOS/${theExecutable})" )
+  endforeach()
+endfunction()
+
 
 add_subdirectory(API)
 set(SRCS 
@@ -37,9 +50,12 @@ set(SRCS
 )
 
 if(APPLE)
-add_library(ossia SHARED ${SRCS})
-set_target_properties(ossia PROPERTIES MACOSX_BUNDLE TRUE)
-set_target_properties(ossia PROPERTIES BUNDLE_EXTENSION bundle)
+add_library(ossia MODULE ${SRCS})
+set_target_properties(ossia PROPERTIES BUNDLE TRUE)
+add_custom_command(TARGET ossia POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:APIJamoma> ${targetfile} ossia.bundle/Contents/Frameworks/libAPIJamoma.dylib)
+copy_in_bundle_jamoma(ossia ${CMAKE_CURRENT_BINARY_DIR}/ossia.bundle "Modular;Foundation;DSP" "Minuit;OSC;AnalysisLib;DataspaceLib;FunctionLib;System;NetworkLib")
+fixup_lib_bundle_jamoma(${CMAKE_CURRENT_BINARY_DIR}/ossia.bundle ossia "Modular;Foundation;DSP")
 
 else()
 add_library(ossia SHARED ${SRCS})
@@ -52,7 +68,9 @@ target_include_directories(ossia PUBLIC API/Headers)
 target_include_directories(ossia PUBLIC src)
 target_include_directories(ossia PUBLIC ${Boost_INCLUDE_DIRS})
 
+
 # Tests
+if(NOT APPLE)
 function(add_ossia_lib_example TheTarget TheFile)
   add_executable(${TheTarget} ${TheFile})
   set_property(TARGET ${TheTarget} PROPERTY CXX_STANDARD 14)
@@ -63,12 +81,6 @@ function(add_ossia_lib_test  TheTarget TheFile)
   add_test(${TheTarget}_test ${TheTarget})
 endfunction()
 
-if(APPLE)
-INSTALL(CODE "
-   include(BundleUtilities)
-   fixup_bundle(\"${CMAKE_CURRENT_BINARY_DIR}/ossia.framework\"   \"\"   \"/usr/local/jamoma/lib;${CMAKE_CURRENT_BINARY_DIR}/API/Implementations/Jamoma\")
-   " COMPONENT Runtime)
-endif()
 
 
 add_ossia_lib_example(ParsingExample examples/preset/ParsingExample.cpp)
@@ -81,3 +93,4 @@ add_ossia_lib_test(unit-tests-presets test/preset/unit-tests/unit-tests-presets.
 add_ossia_lib_test(unit-tests-c-api test/preset/unit-tests/unit-tests-c-api.cpp)
 
 include(CTest)
+endif()
