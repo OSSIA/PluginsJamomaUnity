@@ -620,7 +620,7 @@ void ossia::devices::read_json(OSSIA::Device &odev, const std::string &str) {
     // Not implemented
 }
 
-void ossia::devices::read_xml(OSSIA::Device &, const std::__cxx11::string &) {
+void ossia::devices::read_xml(OSSIA::Device &, const std::string &) {
 
 }
 

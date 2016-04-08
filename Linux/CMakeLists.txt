@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 
 project(PluginJamomaUnity CXX)
 enable_testing()
+find_package(Boost REQUIRED)
 find_package(Jamoma COMPONENTS Foundation)
 # Setup
 set(BUILD_SHARED_LIBS On)
@@ -36,6 +37,7 @@ target_link_libraries(ossia PUBLIC APIJamoma Jamoma::Foundation)
 target_compile_definitions(ossia PUBLIC RAPIDJSON_HAS_STDSTRING=1)
 target_include_directories(ossia PUBLIC API/Headers)
 target_include_directories(ossia PUBLIC src)
+target_include_directories(ossia PUBLIC ${Boost_INCLUDE_DIRS})
 
 # Tests
 function(add_ossia_lib_example TheTarget TheFile)
