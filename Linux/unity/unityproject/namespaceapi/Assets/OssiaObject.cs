@@ -177,7 +177,7 @@ namespace AssemblyCSharp
 		{
 			using (var val = ossia_address.PullValue ()) {
 				try {
-					field.SetValue (parent, val.ToObject());
+					field.SetValue (parent.component, val.ToObject());
 				}
 				catch(Exception) {
 				}
@@ -195,12 +195,12 @@ namespace AssemblyCSharp
 
 	internal class OssiaEnabledComponent
 	{
-		public MonoBehaviour component;
+		public Component component;
 		public Ossia.Node component_node;
 
 		public List<OssiaEnabledParameter> parameters;
 
-		public OssiaEnabledComponent(MonoBehaviour comp, Ossia.Node node)
+		public OssiaEnabledComponent(Component comp, Ossia.Node node)
 		{
 			component = comp;
 			component_node = node;
@@ -240,12 +240,43 @@ namespace AssemblyCSharp
 		{
 		}
 
-		void RegisterComponent(MonoBehaviour component)
+		void RegisterComponent(Component component)
 		{
 			List<OssiaEnabledParameter> nodes = new List<OssiaEnabledParameter>();
-			Debug.Log ("Registering component" + component.GetType().ToString());
-			const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-			FieldInfo[] fields = component.GetType().GetFields(flags);
+			Debug.Log ("Registering component: " + component.GetType().ToString());
+			if (component.GetType () == typeof(UnityEngine.Transform)) {
+				return;
+			}
+			const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty;
+			FieldInfo[] fields = component.GetType().GetFields();
+			/*
+			if (component.GetType () == typeof(UnityEngine.Tree)) {
+				UnityEngine.Tree t = (UnityEngine.Tree)component;
+
+				FieldInfo[] f2 = t.data.GetType ().GetFields ();
+
+				foreach (FieldInfo field in f2) {
+					Debug.Log ("========== Tree.Data field: " + field.Name);
+
+						var root = field.GetValue (t.data);
+
+					if (field.Name == "branchGroups") {
+						Debug.Log((UnityEditorInternal.TreeEditor.TreeGroupBranch[])field.GetValue (t.data));
+					}
+					FieldInfo[] f3 = root.GetType ().GetFields ();
+
+					foreach (FieldInfo subf in f3) {
+						Debug.Log (field.Name + " field: " + subf.Name);
+						if (subf.Name == "rootField") {
+							subf.SetValue (t.data, 1.0);
+						}
+
+					}
+
+				}
+			}
+			*/
+
 
 			// Find the fields that are marked for exposition
 			foreach (FieldInfo field in fields) {
@@ -253,6 +284,7 @@ namespace AssemblyCSharp
 					var attr = (Ossia.Expose) Attribute.GetCustomAttribute(field, typeof(Ossia.Expose));
 					nodes.Add(new OssiaEnabledParameter(field, attr));
 				}
+				Debug.Log (field.GetType () + field.Name);
 			}
 
 			if (nodes.Count > 0) {
@@ -281,8 +313,9 @@ namespace AssemblyCSharp
 			// For each component, we check the public fields.
 			// If these fields have the Ossia.Expose attribute,
 			// then we create node structures for them.
-			MonoBehaviour[] comps = obj.GetComponents <MonoBehaviour>();
-			foreach (MonoBehaviour component in comps) {
+			Component[] comps = obj.GetComponents <Component>();
+			Debug.Log ("There are " + comps.Length + " components");
+			foreach (Component component in comps) {
 				RegisterComponent (component);
 			}
 		}

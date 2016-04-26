@@ -42,6 +42,10 @@ public class OssiaDevices : MonoBehaviour {
 				local_protocol = new Ossia.Local ();
 				local_device = new Ossia.Device (local_protocol, "newDevice");
 
+			    while (!(local_device.ChildSize () == 0)) {
+			    	local_device.RemoveChild (local_device.GetChild (local_device.ChildSize () - 1));
+			    }
+
 			    Debug.Log (local_device.GetName ());
 				scene_node = local_device.AddChild ("scene");
 
@@ -64,7 +68,14 @@ public class OssiaDevices : MonoBehaviour {
 
 
 	void OnApplicationQuit() {
+
+		while (!(minuit_device.ChildSize () == 0)) {
+			minuit_device.RemoveChild (minuit_device.GetChild (minuit_device.ChildSize () - 1));
+		}
 		minuit_device.Free ();
+		while (!(local_device.ChildSize () == 0)) {
+			local_device.RemoveChild (local_device.GetChild (local_device.ChildSize () - 1));
+		}
 		local_device.Free ();
 
 		Debug.Log ("Freed ossia devices");
