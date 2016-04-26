@@ -11,6 +11,7 @@ namespace AssemblyCSharp
 	{
 		Ossia.Node pos_node;
 		Ossia.Node orient_node;
+		Ossia.Node scale_node;
 
 		Ossia.Node pos_x_node;
 		Ossia.Node pos_y_node;
@@ -29,6 +30,14 @@ namespace AssemblyCSharp
 		Ossia.Address rot_x_addr;
 		Ossia.Address rot_y_addr;
 		Ossia.Address rot_z_addr;
+
+		Ossia.Node scale_x_node;
+		Ossia.Node scale_y_node;
+		Ossia.Node scale_z_node;
+
+		Ossia.Address scale_x_addr;
+		Ossia.Address scale_y_addr;
+		Ossia.Address scale_z_addr;
 
 		public OssiaTransform(GameObject obj, Ossia.Node object_node)
 		{
@@ -63,6 +72,21 @@ namespace AssemblyCSharp
 				rot_x_addr.PushValue (ValueFactory.createFloat (obj.transform.position.x));
 				rot_y_addr.PushValue (ValueFactory.createFloat (obj.transform.position.y));
 				rot_z_addr.PushValue (ValueFactory.createFloat (obj.transform.position.z));
+			}
+
+			{
+				scale_node = object_node.AddChild ("scale");
+				scale_x_node = scale_node.AddChild ("x");
+				scale_y_node = scale_node.AddChild ("y");
+				scale_z_node = scale_node.AddChild ("z");
+
+				scale_x_addr = scale_x_node.CreateAddress (Ossia.ossia_type.FLOAT);
+				scale_y_addr = scale_y_node.CreateAddress (Ossia.ossia_type.FLOAT);
+				scale_z_addr = scale_z_node.CreateAddress (Ossia.ossia_type.FLOAT);
+
+				scale_x_addr.PushValue (ValueFactory.createFloat (obj.transform.localScale.x));
+				scale_y_addr.PushValue (ValueFactory.createFloat (obj.transform.localScale.y));
+				scale_z_addr.PushValue (ValueFactory.createFloat (obj.transform.localScale.z));
 			}
 		}
 
@@ -122,6 +146,31 @@ namespace AssemblyCSharp
 				obj.transform.rotation = rot;
 			}
 
+
+			{
+				var scale = obj.transform.localScale;
+
+				using (var x_val = scale_x_addr.PullValue ()) {
+					if (x_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+						scale.x = x_val.GetFloat ();
+					}
+				}
+
+				using (var y_val = scale_y_addr.PullValue ()) {
+					if (y_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+						scale.y = y_val.GetFloat ();
+					}
+				}
+
+				using (var z_val = scale_z_addr.PullValue ()) {
+					if (z_val.GetOssiaType () == Ossia.ossia_type.FLOAT) {
+						scale.z = z_val.GetFloat ();
+					}
+				}
+
+				obj.transform.localScale = scale;
+			}
+
 		}
 
 		public void SendUpdates(GameObject obj)
@@ -152,6 +201,19 @@ namespace AssemblyCSharp
 				}
 				using (var val = ValueFactory.createFloat (rot.z)) {
 					rot_z_addr.PushValue (val);
+				}
+			}
+
+			{
+				var scale = obj.transform.localScale;
+				using (var val = ValueFactory.createFloat (scale.x)) {
+					scale_x_addr.PushValue (val);
+				}
+				using (var val = ValueFactory.createFloat (scale.y)) {
+					scale_y_addr.PushValue (val);
+				}
+				using (var val = ValueFactory.createFloat (scale.z)) {
+					scale_z_addr.PushValue (val);
 				}
 			}
 		}
