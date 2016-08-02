@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Ossia;
@@ -253,6 +255,36 @@ namespace AssemblyCSharp
 			}
 		}
 	}
+	internal class OssiaEnabledMessage
+	{
+		public OssiaEnabledComponent parent;
+
+		public MethodInfo field;
+		public Ossia.Message attribute;
+
+		public Ossia.Node ossia_node;
+		public Ossia.Address ossia_address;
+
+		public OssiaEnabledMessage(MethodInfo f, Ossia.Message attr)
+		{
+			field = f;
+			attribute = attr;
+		}
+
+		public void ReceiveUpdates(GameObject obj)
+		{
+		}
+
+		public void SendUpdates(GameObject obj)
+		{
+		}
+
+ 		public void callback(Ossia.Value aValue) 
+		{
+			Debug.Log ("CALLBACKED");
+			field.Invoke (parent.component, new object[]{});
+		}
+	}
 
 
 	internal class OssiaEnabledComponent
@@ -261,6 +293,7 @@ namespace AssemblyCSharp
 		public Ossia.Node component_node;
 
 		public List<OssiaEnabledParameter> parameters;
+		public List<OssiaEnabledMessage> messages;
 
 		public OssiaEnabledComponent(Component comp, Ossia.Node node)
 		{
@@ -305,12 +338,14 @@ namespace AssemblyCSharp
 		void RegisterComponent(Component component)
 		{
 			List<OssiaEnabledParameter> nodes = new List<OssiaEnabledParameter>();
+
+			List<OssiaEnabledMessage> message_nodes = new List<OssiaEnabledMessage>();
 			Debug.Log ("Registering component: " + component.GetType().ToString());
 			if (component.GetType () == typeof(UnityEngine.Transform)) {
 				return;
 			}
-			const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty;
 			FieldInfo[] fields = component.GetType().GetFields();
+			MethodInfo[] methods2 = component.GetType ().GetMethods(BindingFlags.Public | BindingFlags.Instance);
 			/*
 			if (component.GetType () == typeof(UnityEngine.Tree)) {
 				UnityEngine.Tree t = (UnityEngine.Tree)component;
@@ -346,13 +381,26 @@ namespace AssemblyCSharp
 					var attr = (Ossia.Expose) Attribute.GetCustomAttribute(field, typeof(Ossia.Expose));
 					nodes.Add(new OssiaEnabledParameter(field, attr));
 				}
-				Debug.Log (field.GetType () + field.Name);
 			}
 
-			if (nodes.Count > 0) {
-				// Create a node for the component
-				OssiaEnabledComponent ossia_c = new OssiaEnabledComponent(component, child_node.AddChild(component.GetType().ToString()));
+			foreach (MethodInfo method in methods2) {
+				
+				if(Attribute.IsDefined(method, typeof(Ossia.Message))) {
+					var attr = (Ossia.Message) Attribute.GetCustomAttribute(method, typeof(Ossia.Message));
+					message_nodes.Add(new OssiaEnabledMessage(method, attr));
+					Debug.Log ("FOUUUUND THE METHOD: " + method.Name);
+				}
 
+			}
+
+
+
+			// Create a node for the component
+			if (nodes.Count > 0 || message_nodes.Count > 0) {
+				OssiaEnabledComponent ossia_c = new OssiaEnabledComponent (component, child_node.AddChild (component.GetType ().ToString ()));
+			
+
+			if (nodes.Count > 0) {
 				// Create nodes for all the fields that were exposed
 				foreach (OssiaEnabledParameter oep in nodes) {
 					oep.parent = ossia_c;
@@ -361,8 +409,21 @@ namespace AssemblyCSharp
 					oep.ossia_address = oep.ossia_node.CreateAddress (Ossia.Value.TypeToOssia2 (oep.field.FieldType));
 					oep.SendUpdates (this.gameObject);
 				}
+			}
+
+			if (message_nodes.Count > 0) {
+				foreach (OssiaEnabledMessage oep in message_nodes) {
+					Debug.Log ("Adding attribute : " + oep.attribute.ExposedName);
+					oep.parent = ossia_c;
+					oep.ossia_node = ossia_c.component_node.AddChild (oep.attribute.ExposedName);
+					//Debug.Log (oep.field.MemberType.ToString () + " " + oep.field.FieldType.ToString () + " " + oep.field.ReflectedType.ToString ());
+					oep.ossia_address = oep.ossia_node.CreateAddress (ossia_type.IMPULSE);
+					oep.ossia_address.AddCallback (oep.callback);
+				}
+			}
 
 				ossia_c.parameters = nodes;
+				ossia_c.messages = message_nodes;
 				ossia_components.Add (ossia_c);
 			}
 		}
@@ -404,15 +465,19 @@ namespace AssemblyCSharp
 					component.ReceiveUpdates (this.gameObject);
 				}
 			}
+			StartCoroutine ("SendUpdatesFun");
+		}
+
+		public IEnumerator SendUpdatesFun()
+		{
+			yield return new WaitForEndOfFrame ();
 			if (SendUpdates) {
 				ossia_transform.SendUpdates (this.gameObject);
 				foreach (var component in ossia_components) {
 					component.SendUpdates (this.gameObject);
 				}
 			}
-
 		}
-
 
 		static void XChangedCallback(Ossia.Value val)
 		{

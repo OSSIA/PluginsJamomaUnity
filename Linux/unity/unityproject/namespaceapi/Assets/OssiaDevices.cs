@@ -48,6 +48,7 @@ public class OssiaDevices : MonoBehaviour {
 
 			    Debug.Log (local_device.GetName ());
 				scene_node = local_device.AddChild ("scene");
+			Debug.Log ("Created scene: " + scene_node.GetName () + local_device.ChildSize());
 
 
 				minuit_protocol = new Ossia.Minuit (

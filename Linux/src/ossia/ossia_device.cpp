@@ -55,7 +55,6 @@ const char* ossia_device_get_name(ossia_device_t node)
 
 void ossia_device_free(ossia_device_t device)
 {
-    return ;
     return safe_function(__func__, [=] {
         if(device && device->device)
         {

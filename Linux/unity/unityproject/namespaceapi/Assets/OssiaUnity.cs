@@ -49,4 +49,17 @@ namespace Ossia
 		}
 	}
 
+
+	[System.AttributeUsage(System.AttributeTargets.All)]
+	public class Message : System.Attribute
+	{
+		public string ExposedName;
+
+		public Message(string name)
+		{
+			this.ExposedName = name;
+		}
+	}
+
+
 }
